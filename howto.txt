@@ -1,0 +1,3 @@
+install python pip
+trus install request : pip install request
+
