@@ -1,11 +1,14 @@
 import sqlite3
 from sqlite3 import Error
-import urllib2
+from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
+def createConn(loc):
+	 conn = sqlite3.connect("/home/fs/scrap.sqlite") #ganti dengan lokasi db bro
+	 return conn
 
 
-if __name__ == '__main__':
-    conn = sqlite3.connect("/home/fs/python_project/scrap") #ganti dengan lokasi connect bro
-
-    conn.close()
+def getHTML(web):
+	html = urlopen(web)
+	bs = BeautifulSoup(html.read())
+	return bs
