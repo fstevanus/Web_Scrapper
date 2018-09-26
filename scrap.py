@@ -28,7 +28,7 @@ def getBukalapak():
 	for i in range(1): # untuk test
 		url = url1+ (str(i + 1)) +url2
 		print("start harvest data from " + url)
-		print("nama\t|\tharga\t|\trating")
+		print("Nama\t|\tHarga\t|\tRating\t|\tTerjual")
 		htm = urlopen(url)
 		bs1 = soup(htm.read(), features="html.parser")
 		dataHTML = bs1.find("div",{"class":"basic-products"}).findAll("div" ,{"class":"product-card"})
@@ -36,10 +36,13 @@ def getBukalapak():
 			# arc = j.find("article")
 			productName = j.find("article").attrs["data-name"]
 			productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
+			urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
+			htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
+			productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
 			try:
 				productRating = j.find("span",{"class":"rating"}).attrs["title"]
 			except:
-				productRating = "none"
-			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating)
+				productRating = "Belum Ada Rating"
+			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+str(productSold))
 
 
