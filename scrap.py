@@ -43,6 +43,6 @@ def getBukalapak():
 				productRating = j.find("span",{"class":"rating"}).attrs["title"]
 			except:
 				productRating = "Belum Ada Rating"
-			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+str(productSold))
+			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold)
 
 
