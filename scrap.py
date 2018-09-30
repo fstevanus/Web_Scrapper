@@ -2,12 +2,19 @@ import sqlite3
 from sqlite3 import Error
 from urllib.request import urlopen
 from bs4 import BeautifulSoup as soup
+from datetime import date, datetime
 
+#data base
 def createConn():
-	 conn = sqlite3.connect("/home/fs/scrap.sqlite") #ganti dengan lokasi db bro
+	 conn = sqlite3.connect("/home/fs/project_scrap/Web_Scrapper/data.sqlite") #ganti dengan lokasi db bro
 	 return conn
 
+def createDateBase():
+	conn = createConn()
+	conn.execute('''CREATE TABLE IF NOT EXISTS bukalapak (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT UNIQUE, harga NUMERIC DEFAULT 0, rating INTEGER DEFAULT 0, terjual NUMERIC, getDate DATE)''')
+	conn.close()
 
+#scrap
 def getHTML(web):
 	html = urlopen(web)
 	bs = soup(html.read(), "html.parser")
@@ -45,7 +52,11 @@ def getBukalapak():
 			try:
 				productRating = j.find("span",{"class":"rating"}).attrs["title"]
 			except:
-				productRating = "Belum Ada Rating"
+				productRating = "0"
+
+			dataBukalapak = BukalapakData(productName, int(productPrice), int(productRating), int(productSold))
+
+			dataBukalapak.saveData()
 
 			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
 
@@ -85,4 +96,20 @@ def getTokopedia():
 			if(kategori>=2):		#
 				break				#
 			#########################
+
+# class class
+class BukalapakData:
+	def __init__(self, name, harga, rating, terjual):
+		self.name = name
+		self.harga = harga
+		self.rating = rating
+		self.terjual = terjual
+
+	def saveData(self):
+		today = date.today()
+		conn = createConn()
+		conn.execute('''insert into bukalapak(name, harga, rating, terjual, getDate) values(?, ?, ?, ?, ?)''', (self.name, self.harga, self.rating, self.terjual, today))
+		conn.commit()
+		print("berhasil simpan " + self.name)
+		conn.close()
 
