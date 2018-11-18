@@ -31,41 +31,41 @@ def getBukalapak():
 	maxi = bs.find("span", {"class":"last-page"})
 	max = maxi.get_text()
 	a = 0
-	for i in range(int(max)): # bukan untuk test
-# 	for i in range(1): # untuk test
+	# for i in range(int(max)): # bukan untuk test
+	for i in range(1): # untuk test
 		url = url1+ (str(i + 1)) +url2
 		print("start harvest data from " + url)
 		print("Nama\t|\tHarga\t|\tRating\t|\tTerjual\t|\tBerat")
 		htm = urlopen(url)
 		bs1 = soup(htm.read(), features="html.parser")
-    dataHTML = bs1.find("div",{"class":"basic-products"}).findAll("div" ,{"class":"product-card"})
-    for j in dataHTML:
-      try:
-        productName = j.find("article").attrs["data-name"]
-      except:
-        productName = ""
-      try:
-        productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
-      except:
-        productPrice = "0"
-      
-      productSold = "0"
-      productWeight = "0"
-      
-      try:
-        urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
-        htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
-        try:
-          productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
-        try:
-          productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
-      except:
-        print "error"
+		dataHTML = bs1.find("div",{"class":"basic-products"}).findAll("div" ,{"class":"product-card"})
+		for j in dataHTML:
+			try:
+				productName = j.find("article").attrs["data-name"]
+			except:
+				productName = ""
+			try:
+				productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
+			except:
+				productPrice = "0"
+			try:
+				urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
+				htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
+				try:
+					productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
+				except:
+					productSold = "0"
+				try:
+					productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
+				except:
+					productWeight = "0"
+			except:
+				print("error")
 			try:
 				productRating = j.find("span",{"class":"rating"}).attrs["title"]
 			except:
 				productRating = "0"
-# 			dataBukalapak = BukalapakData(productName, int(productPrice), float(productRating), int(productSold))
+	# 		dataBukalapak = BukalapakData(productName, int(productPrice), float(productRating), int(productSold))
 			dataBukalapak = BukalapakData(productName, productPrice, productRating, productSold)
 			dataBukalapak.saveData()
 			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
