@@ -6,12 +6,12 @@ from datetime import date, datetime
 
 #data base
 def createConn():
-	 conn = sqlite3.connect("/projects/Web_Scrapper/data.sqlite") #ganti dengan lokasi db bro
+	 conn = sqlite3.connect("/home/fs/project_scrap/Web_Scrapper/data.sqlite") #ganti dengan lokasi db bro
 	 return conn
 
 def createDataBase():
 	conn = createConn()
-	conn.execute('''CREATE TABLE IF NOT EXISTS bukalapak (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT UNIQUE, harga NUMERIC DEFAULT 0, rating INTEGER DEFAULT 0, terjual NUMERIC, getDate DATE)''')
+	conn.execute('''CREATE TABLE IF NOT EXISTS bukalapak (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT UNIQUE, harga NUMERIC DEFAULT 0, rating INTEGER DEFAULT 0, terjual NUMERIC, getDate DATE, urldetail TEXT)''')
 	conn.close()
 
 #scrap
@@ -51,29 +51,36 @@ def getBukalapak():
 			    productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
 			except:
 			    productPrice = "0"
-			
-			urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
-			htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
-			#print(htmlDetail)
 			try:
-			    productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
+				urlDetail = "https://www.bukalapak.com" + j.find("a",{"class":"product-media__link"}).attrs["href"]
 			except:
-			    productSold = "0"
-			try:
-			    productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
-			except:
-			    productWeight = "0"
+				urlDetail = "none"
+			if urlDetail != "none":
+				try:
+					htmlDetail = getHTML(urlDetail)
+				except:
+					htmlDetail = "none"
+				#print(htmlDetail)
+				if htmlDetail != "none":
+					try:
+					    productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
+					except:
+					    productSold = "0"
+					try:
+					    productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
+					except:
+					    productWeight = "0"
 
-			try:
-				productRating = j.find("span",{"class":"rating"}).attrs["title"]
-			except:
-				productRating = "0"
+					try:
+						productRating = j.find("span",{"class":"rating"}).attrs["title"]
+					except:
+						productRating = "0"
 
-			dataBukalapak = BukalapakData(productName, productPrice, productRating, productSold)
-			
-#			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
+					dataBukalapak = BukalapakData(productName, productPrice, productRating, productSold, urlDetail)
+					
+		#			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
 
-			dataBukalapak.saveData()
+					dataBukalapak.saveData()
 
 
 def getTokopedia():
@@ -113,28 +120,36 @@ def getTokopedia():
 				break				#
 			#########################
 
+def showBukalapak():
+	bukalapaks = BukalapakData.showAll()
+	for bl in bukalapaks:
+		print(bl)
+		print("\n")
+
 # class class
 class BukalapakData:
-	def __init__(self, name, harga, rating, terjual):
+	def __init__(self, name, harga, rating, terjual, urlDetail):
 		self.name = name
 		self.harga = harga
 		self.rating = rating
 		self.terjual = terjual
+		self.urlDetail = urlDetail
 
 	def saveData(self):
 		today = date.today()
 		conn = createConn()
-		conn.execute('''insert into bukalapak(name, harga, rating, terjual, getDate) values(?, ?, ?, ?, ?)''', (self.name, self.harga, self.rating, self.terjual, today))
+		conn.execute('''insert into bukalapak(name, harga, rating, terjual, getDate, urldetail) values(?, ?, ?, ?, ?, ?)''', (self.name, self.harga, self.rating, self.terjual, today, self.urlDetail))
 		conn.commit()
-#		print("berhasil simpan " + self.name)
+		print("berhasil simpan " + self.name)
 		conn.close()
 		
-	def showAll(self):
+	def showAll():
 		conn = createConn()
-		conn.execute('''select * from bukalapak order by terjual desc''')
-		results = conn.fetchall()
-		for i in results:
-			print(i)
+		c = conn.cursor()
+		c.execute('''select * from (select distinct name, terjual,rating, harga, urldetail from bukalapak where rating > 3 order by terjual desc) limit 20''')
+		results = c.fetchall()
+		conn.close()
+		return results
 		      
 if __name__ == '__main__':
     getBukalapak()
