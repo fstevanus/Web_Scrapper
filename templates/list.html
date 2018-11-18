@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+   <body>
+   
+      <table border = 1>
+         <thead>
+            <td>Name</td>
+            <td>Harga</td>
+            <td>rating</td>
+            <td>Terjual</td>
+            <td>Url_detail</td>
+         </thead>
+         
+         {% for row in rows %}
+            <tr>
+               <td>{{row["name"]}}</td>
+               <td>{{row["harga"]}}</td>
+               <td> {{ row["rating"]}}</td>
+               <td>{{row['terjual']}}</td>	
+               <td>{{row['urldetail']}}</td>	
+            </tr>
+         {% endfor %}
+         
+      </table>      
+   </body>
+</html>

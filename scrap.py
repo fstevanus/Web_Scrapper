@@ -145,8 +145,10 @@ class BukalapakData:
 		
 	def showAll():
 		conn = createConn()
+		conn.row_factory = sqlite3.Row
 		c = conn.cursor()
-		c.execute('''select * from (select distinct name, terjual,rating, harga, urldetail from bukalapak where rating > 3 order by terjual desc) limit 20''')
+		c.execute('''select * from (select distinct name, terjual,rating, harga, urldetail from bukalapak where rating > 3 order by terjual desc) limit 40''')
+		# c.execute('''select * from (select * from bukalapak where rating > 3 order by terjual desc) limit 20''')
 		results = c.fetchall()
 		conn.close()
 		return results
