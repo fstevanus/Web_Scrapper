@@ -6,10 +6,10 @@ from datetime import date, datetime
 
 #data base
 def createConn():
-	 conn = sqlite3.connect("/home/cabox/workspace/data.sqlite") #ganti dengan lokasi db bro
+	 conn = sqlite3.connect("/projects/Web_Scrapper/data.sqlite") #ganti dengan lokasi db bro
 	 return conn
 
-def createDateBase():
+def createDataBase():
 	conn = createConn()
 	conn.execute('''CREATE TABLE IF NOT EXISTS bukalapak (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT UNIQUE, harga NUMERIC DEFAULT 0, rating INTEGER DEFAULT 0, terjual NUMERIC, getDate DATE)''')
 	conn.close()
@@ -31,44 +31,50 @@ def getBukalapak():
 	maxi = bs.find("span", {"class":"last-page"})
 	max = maxi.get_text()
 	a = 0
-	# for i in range(int(max)): # bukan untuk test
-	for i in range(1): # untuk test
+	for i in range(int(max)): # bukan untuk test
+#	for i in range(1): # untuk test
 		url = url1+ (str(i + 1)) +url2
 		print("start harvest data from " + url)
-		print("Nama\t|\tHarga\t|\tRating\t|\tTerjual\t|\tBerat")
+		print("PAGE\t" + str(i + 1) + "\tof\t" + max)
+#		print("Nama\t|\tHarga\t|\tRating\t|\tTerjual\t|\tBerat")
 		htm = urlopen(url)
 		bs1 = soup(htm.read(), features="html.parser")
 		dataHTML = bs1.find("div",{"class":"basic-products"}).findAll("div" ,{"class":"product-card"})
 		for j in dataHTML:
+			# arc = j.find("article")
 			try:
-				productName = j.find("article").attrs["data-name"]
+			    productName = j.find("article").attrs["data-name"]
 			except:
-				productName = ""
+			    productName = "noname"
+			
 			try:
-				productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
+			    productPrice = j.find("div", {"class":"product-price"}).attrs["data-reduced-price"]
 			except:
-				productPrice = "0"
+			    productPrice = "0"
+			
+			urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
+			htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
+			#print(htmlDetail)
 			try:
-				urlDetail = j.find("a",{"class":"product-media__link"}).attrs["href"]
-				htmlDetail = getHTML("https://www.bukalapak.com"+urlDetail)
-				try:
-					productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
-				except:
-					productSold = "0"
-				try:
-					productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
-				except:
-					productWeight = "0"
+			    productSold = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-sold-value"}).text.strip()
 			except:
-				print("error")
+			    productSold = "0"
+			try:
+			    productWeight = htmlDetail.find("dd",{"class":"c-deflist__value qa-pd-weight-value qa-pd-weight"}).text.strip()
+			except:
+			    productWeight = "0"
+
 			try:
 				productRating = j.find("span",{"class":"rating"}).attrs["title"]
 			except:
 				productRating = "0"
-	# 		dataBukalapak = BukalapakData(productName, int(productPrice), float(productRating), int(productSold))
+
 			dataBukalapak = BukalapakData(productName, productPrice, productRating, productSold)
+			
+#			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
+
 			dataBukalapak.saveData()
-			print(productName+"\t|\t"+productPrice+"\t|\t"+productRating+"\t|\t"+productSold+"\t|\t"+productWeight)
+
 
 def getTokopedia():
 	home = "https://www.tokopedia.com/hot"
@@ -120,6 +126,15 @@ class BukalapakData:
 		conn = createConn()
 		conn.execute('''insert into bukalapak(name, harga, rating, terjual, getDate) values(?, ?, ?, ?, ?)''', (self.name, self.harga, self.rating, self.terjual, today))
 		conn.commit()
-		print("berhasil simpan " + self.name)
+#		print("berhasil simpan " + self.name)
 		conn.close()
-
+		
+	def showAll(self):
+		conn = createConn()
+		conn.execute('''select * from bukalapak order by terjual desc''')
+		results = conn.fetchall()
+		for i in results:
+			print(i)
+		      
+if __name__ == '__main__':
+    getBukalapak()
