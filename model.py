@@ -1,5 +1,6 @@
 from db import createConn
 from datetime import date, datetime
+import sqlite3
 
 # class class
 class BukalapakData:
