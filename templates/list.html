@@ -1,25 +1,57 @@
 <!doctype html>
 <html>
    <body>
-   
       <table border = 1>
          <thead>
-            <td>Name</td>
-            <td>Harga</td>
-            <td>rating</td>
-            <td>Terjual</td>
-            <td>Url_detail</td>
+            <td>Bukalapak</td>
+            <td>TokoPedia</td>
          </thead>
-         
-         {% for row in rows %}
             <tr>
-               <td>{{row["name"]}}</td>
-               <td>{{row["harga"]}}</td>
-               <td> {{ row["rating"]}}</td>
-               <td>{{row['terjual']}}</td>	
-               <td>{{row['urldetail']}}</td>	
+               <td>
+                   <table  >
+                     <thead>
+                        <td>Name</td>
+                        <td>Harga</td>
+                        <td>rating</td>
+                        <td>Terjual</td>
+                        <td>Url_detail</td>
+                     </thead>
+                     
+                     {% for b in bl %}
+                        <tr>
+                           <td>{{b["name"]}}</td>
+                           <td>{{b["harga"]}}</td>
+                           <td> {{b["rating"]}}</td>
+                           <td>{{b['terjual']}}</td>   
+                           <td>{{b['urldetail']}}</td> 
+                        </tr>
+                     {% endfor %}
+
+                  </table>      
+               </td>
+               <td>
+                  <table >
+                     <thead>
+                        <td>Name</td>
+                        <td>Harga</td>
+                        <td>rating</td>
+                        <td>Terjual</td>
+                        <td>Url_detail</td>
+                     </thead>
+                     
+                     {% for t in tp %}
+                        <tr>
+                           <td>{{t["productName"]}}</td>
+                           <td>{{t["productPrice"]}}</td>
+                           <td>{{t["productRating"]}}</td>
+                           <td>{{t['productSold']}}</td>  
+                           <td>{{t['productURL']}}</td>   
+                        </tr>
+                     {% endfor %}
+                     
+                  </table>    
+               </td>
             </tr>
-         {% endfor %}
          
       </table>      
    </body>

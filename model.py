@@ -29,8 +29,34 @@ class BukalapakData:
 		conn.close()
 		return results
 
+class TokopediaData:
+	def __init__(self, productURL, productId, productName, productImage, productRating, productSold, productPrice):
+		self.productURL = productURL
+		self.productId = productId
+		self.productName = productName
+		self.productImage = productImage
+		self.productRating = productRating
+		self.productSold = productSold
+		self.productPrice = productPrice
 
+	def saveData(self):
+		today = date.today()
+		conn = createConn()
+		conn.execute('''insert into tokopedia(productURL, productId, productName, productImage, productRating, productSold, productPrice, getDate) values(?, ?, ?, ?, ?, ?, ?, ?)''', 
+			(self.productURL, self.productId, self.productName, self.productImage, self.productRating, self.productSold, self.productPrice, today))
+		conn.commit()
+		print("berhasil simpan " + self.productName)
+		conn.close()
 
+	def showAll():
+		conn = createConn()
+		conn.row_factory = sqlite3.Row
+		c = conn.cursor()
+		c.execute('''select * from (select distinct productName, productSold, productRating, productPrice, productURL, productImage from tokopedia where productRating > 3 order by productSold desc) limit 40''')
+		# c.execute('''select * from (select * from bukalapak where rating > 3 order by terjual desc) limit 20''')
+		results = c.fetchall()
+		conn.close()
+		return results
 
 def showBukalapak():
 	bukalapaks = BukalapakData.showAll()

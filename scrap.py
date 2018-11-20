@@ -1,7 +1,8 @@
 
 from urllib.request import urlopen
 from bs4 import BeautifulSoup as soup
-from model import BukalapakData
+from model import BukalapakData, TokopediaData
+import requests as req
 
 #scrap
 def getHTML(web):
@@ -108,3 +109,36 @@ def getTokopedia():
 			if(kategori>=2):		#
 				break				#
 			#########################
+
+
+def getTokopediaWithAPI():
+	page = 1
+	errorCounter = 0
+	next = True
+	while next:
+		find = req.get('https://ta.tokopedia.com/promo/v1.1/display/ads?page=' + str(page) + '&ep=product&item=&src=hotlist')
+		print('page {}'.format(page))
+		if find.json()['header']['total_data'] != 0:
+			for data in find.json()['data']:
+				productURL = data['product']['uri']
+				productId = data['product']['id']
+				productName = data['product']['name']
+				productImage = data['product']['image']['m_url']
+				productRating = req.get('https://www.tokopedia.com/reputationapp/review/api/v1/rating?product_id='+productId).json()['data']['rating_score']
+				productSold = req.get('https://mojito.tokopedia.com/wishlist/count/v1?product_id='+productId).json()['data']['count']
+				# productViews = req.get('https://tome.tokopedia.com/v2/provi?pid='+productId).json()['data']['view']
+				productPrice = data['product']['price_format'].replace("Rp ", "").replace(".", "")
+				# print('productURL {}\nproductId {}\nproductName {}\nproductImage {}\nproductRating {}\nproductSold {}\nproductViews {}\nproductPrice {}'.format(productURL, productId, productName, productImage, productRating, productSold, productViews, productPrice))
+				print('productURL {}\nproductId {}\nproductName {}\nproductImage {}\nproductRating {}\nproductSold {}\nproductPrice {}'.format(productURL, productId, productName, productImage, productRating, productSold, productPrice))
+				tokopediaData = TokopediaData(productURL, productId, productName, productImage, productRating, productSold, productPrice)
+				tokopediaData.saveData()
+				print("\n\n")
+			errorCounter = 0
+		else:
+			errorCounter += 1
+
+		if errorCounter > 5:
+			next = False
+			pass
+
+		page+=1

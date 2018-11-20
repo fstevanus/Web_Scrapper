@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+   <body>
+   
+      <table border = 1>
+         <thead>
+            <td>gambar</td>
+            <td>Name</td>
+            <td>Harga</td>
+            <td>rating</td>
+            <td>Terjual</td>
+            <td>Url_detail</td>
+         </thead>
+         
+         {% for row in rows %}
+            <tr>
+               <td><img src={{row["productImage"]}}></td>
+               <td>{{row["productName"]}}</td>
+               <td>{{row["productPrice"]}}</td>
+               <td>{{row["productRating"]}}</td>
+               <td>{{row['productSold']}}</td>	
+               <td>{{row['productURL']}}</td>	
+            </tr>
+         {% endfor %}
+         
+      </table>      
+   </body>
+</html>
