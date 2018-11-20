@@ -52,7 +52,7 @@ class TokopediaData:
 		conn = createConn()
 		conn.row_factory = sqlite3.Row
 		c = conn.cursor()
-		c.execute('''select * from (select distinct productName, productSold, productRating, productPrice, productURL, productImage from tokopedia where productRating > 3 order by productSold desc) limit 40''')
+		c.execute('''select * from (select distinct productName, productSold, productRating, productPrice, productURL from tokopedia where productRating > 3 order by productSold desc) limit 40''')
 		# c.execute('''select * from (select * from bukalapak where rating > 3 order by terjual desc) limit 20''')
 		results = c.fetchall()
 		conn.close()
