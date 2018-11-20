@@ -1,18 +1,7 @@
-import sqlite3
-from sqlite3 import Error
+
 from urllib.request import urlopen
 from bs4 import BeautifulSoup as soup
-from datetime import date, datetime
-
-#data base
-def createConn():
-	 conn = sqlite3.connect("/home/fs/project_scrap/Web_Scrapper/data.sqlite") #ganti dengan lokasi db bro
-	 return conn
-
-def createDataBase():
-	conn = createConn()
-	conn.execute('''CREATE TABLE IF NOT EXISTS bukalapak (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT UNIQUE, harga NUMERIC DEFAULT 0, rating INTEGER DEFAULT 0, terjual NUMERIC, getDate DATE, urldetail TEXT)''')
-	conn.close()
+from model import BukalapakData
 
 #scrap
 def getHTML(web):
@@ -119,39 +108,3 @@ def getTokopedia():
 			if(kategori>=2):		#
 				break				#
 			#########################
-
-def showBukalapak():
-	bukalapaks = BukalapakData.showAll()
-	for bl in bukalapaks:
-		print(bl)
-		print("\n")
-
-# class class
-class BukalapakData:
-	def __init__(self, name, harga, rating, terjual, urlDetail):
-		self.name = name
-		self.harga = harga
-		self.rating = rating
-		self.terjual = terjual
-		self.urlDetail = urlDetail
-
-	def saveData(self):
-		today = date.today()
-		conn = createConn()
-		conn.execute('''insert into bukalapak(name, harga, rating, terjual, getDate, urldetail) values(?, ?, ?, ?, ?, ?)''', (self.name, self.harga, self.rating, self.terjual, today, self.urlDetail))
-		conn.commit()
-		print("berhasil simpan " + self.name)
-		conn.close()
-		
-	def showAll():
-		conn = createConn()
-		conn.row_factory = sqlite3.Row
-		c = conn.cursor()
-		c.execute('''select * from (select distinct name, terjual,rating, harga, urldetail from bukalapak where rating > 3 order by terjual desc) limit 40''')
-		# c.execute('''select * from (select * from bukalapak where rating > 3 order by terjual desc) limit 20''')
-		results = c.fetchall()
-		conn.close()
-		return results
-		      
-if __name__ == '__main__':
-    getBukalapak()
